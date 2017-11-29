@@ -1,5 +1,7 @@
 #include "twoOpt.hpp"
 
+const int SECONDS_AVAILABLE = 175;
+
 int main(int argc, char* argv[]){
     if(argc != 2){
         cout << "Please enter file name.";
@@ -10,24 +12,21 @@ int main(int argc, char* argv[]){
 
     vector<City> cities = readInput(fileName);
 
+    time_t start = time(0);
+    cities = nearestNeighbor(cities);
+    time_t used = time(0) - start;
+    int timeLeft = SECONDS_AVAILABLE - used;
+
     Solution mySol = Solution(cities);
 
+    cout << "\nInitial tour:\n";
     mySol.printSolution();
 
-    run(mySol);
+    twoOpt(mySol, timeLeft);
 
-    // _twoOptSwap(mySol.tour, 0, 5);
-
+    cout << "\nAfter 2OPT:\n";
     mySol.printSolution();
 
-
-    // TwoOptSolution mySol = TwoOptSolution(cities);
-
-    // mySol.printSolution();
-
-    // mySol.run();
-
-    // mySol.printSolution();
-
+    cout << "TIME: " << time(0) - start << endl;
     return 0;
 }

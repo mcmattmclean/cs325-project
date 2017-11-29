@@ -22,6 +22,37 @@ void printTour(vector<City> cities){
     cout << '\n';
 }
 
+City findClosestNeighbor(City v, vector<City>& tour){
+    int shortestEdgeLength = INT_MAX;
+    City closestNeighbor;
+    int nearestNeighborIndex = 0;
+    for(int i = 0; i < tour.size(); i++){
+        if(tour[i].id != v.id){
+            int distance = _calcDistanceNode(tour[i], v);
+            if(shortestEdgeLength > distance){
+                closestNeighbor = tour[i];
+                nearestNeighborIndex = i;
+                shortestEdgeLength = distance;
+            }
+        }
+    }
+    tour.erase(tour.begin() + nearestNeighborIndex);
+    return closestNeighbor;
+}
+
+vector<City> nearestNeighbor(vector<City> tour){
+    vector<City> greedyTour;
+    City currentCity = tour.back();
+    tour.pop_back();
+    greedyTour.push_back(currentCity);
+    while(tour.size() > 0){
+        City next = findClosestNeighbor(currentCity, tour);
+        currentCity = next;
+        greedyTour.push_back(currentCity);
+    }
+    return greedyTour;
+}
+
 int _calcDistanceNode(City city1, City city2){
     double x_distance = city1.x - city2.x;
     double y_distance = city1.y - city2.y;
@@ -37,7 +68,6 @@ int calcDistance(vector<City> tour){
     return dTravelled;
 }
 
-
 void _twoOptSwap(vector<City>& tour, int i, int k){
     while(k > i){
         City temp = tour[i];
@@ -48,8 +78,10 @@ void _twoOptSwap(vector<City>& tour, int i, int k){
     }
 }
 
-void run(Solution& bestSolution){
+void twoOpt(Solution& bestSolution, int timeAvailable){
     std::cout << "Running 2-Opt...\n";
+    time_t start = time(0);
+    time_t end = start + timeAvailable;
     bool improve = true;
     while(improve){
         improve = false;
@@ -67,6 +99,9 @@ void run(Solution& bestSolution){
                 else{
                     newTour = bestSolution.tour;
                 }
+                if(time(0) > end){
+                    return;
+                }
             }
         }
     }
@@ -77,6 +112,11 @@ vector<City> readInput(string fileName){
 
     std::ifstream inputFile;
     inputFile.open(fileName);
+    if(!inputFile){
+        cout << "File not found.";
+        exit(EXIT_FAILURE);
+    }
+
     int id = 0;
     int x = 0;
     int y = 0;
